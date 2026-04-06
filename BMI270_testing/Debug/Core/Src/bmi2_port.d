@@ -1,5 +1,5 @@
-Core/Src/BMI_port.o: ../Core/Src/BMI_port.c ../Core/Inc/BMI2.h \
- ../Core/Inc/BMI2_defs.h \
+Core/Src/bmi2_port.o: ../Core/Src/bmi2_port.c ../Core/Inc/bmi2.h \
+ ../Core/Inc/bmi2_defs.h ../Core/Inc/main.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h \
  ../Core/Inc/stm32f1xx_hal_conf.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h \
@@ -23,8 +23,9 @@ Core/Src/BMI_port.o: ../Core/Src/BMI_port.c ../Core/Inc/BMI2.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_i2c.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h
-../Core/Inc/BMI2.h:
-../Core/Inc/BMI2_defs.h:
+../Core/Inc/bmi2.h:
+../Core/Inc/bmi2_defs.h:
+../Core/Inc/main.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:
 ../Core/Inc/stm32f1xx_hal_conf.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h:

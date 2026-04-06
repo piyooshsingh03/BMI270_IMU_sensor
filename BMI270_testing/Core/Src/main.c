@@ -22,15 +22,14 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "stdio.h"
-#include "BMI270.h"
-#include "BMI2.h"
-
-struct bmi2_dev dev;
+#include "bmi2.h"
+#include "bmi270.h"
+#include "bmi2_defs.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-struct bmi2_sens_data sensor_data;
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -94,50 +93,45 @@ int main(void)
   MX_GPIO_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-  // 🔍 I2C Scanner (ADD HERE)
-  for (uint8_t addr = 1; addr < 128; addr++)
-  {
-      if (HAL_I2C_IsDeviceReady(&hi2c1, addr << 1, 1, 10) == HAL_OK)
-      {
-          printf("Found device at: 0x%X\n", addr);
-      }
-  }
-
-//  HAL_Delay(2000);  // give time to observe output
+  struct bmi2_dev dev;
+  struct bmi2_sens_data sensor_data;
+  dev.intf_ptr = &hi2c1;   // MUST
   dev.intf = BMI2_I2C_INTF;
-    dev.read = bmi2_i2c_read;
-    dev.write = bmi2_i2c_write;
-    dev.delay_us = bmi2_delay_us;
-    dev.intf_ptr = NULL;
-    dev.read_write_len = 32;
-  int8_t rslt;
-  uint8_t chip_id = 0;
+  dev.read = bmi2_i2c_read;
+  dev.write = bmi2_i2c_write;
+  dev.delay_us = bmi2_delay_us;
+  dev.read_write_len = 8;
 
-  if (HAL_I2C_Mem_Read(&hi2c1, (0x68 << 1), 0x00, I2C_MEMADD_SIZE_8BIT, &chip_id, 1, 100) == HAL_OK)
+  int8_t rslt;
+  uint8_t test = 0xB6;  // soft reset command
+
+  if (HAL_I2C_Mem_Write(&hi2c1, (0x69 << 1), 0x7E, I2C_MEMADD_SIZE_8BIT, &test, 1, 100) == HAL_OK)
   {
-      printf("CHIP ID: 0x%X\n", chip_id);
+      printf("Soft reset write OK\n");
   }
   else
   {
-      printf("I2C Read Failed\n");
+      printf("Soft reset write FAIL\n");
   }
+  /* INIT */
   rslt = bmi270_init(&dev);
-  HAL_Delay(200);   // 🔥 VERY IMPORTANT
-  if (rslt != BMI2_OK)
-  {
-	  printf("Init result: %d\n", rslt);
-  }
+  printf("Init: %d\n", rslt);
+
+  HAL_Delay(200);
+
+  /* STATUS CHECK */
   uint8_t status = 0;
   bmi2_get_regs(0x21, &status, 1, &dev);
+  printf("Status: 0x%X\n", status);
 
-  printf("Internal status: 0x%X\n", status);
-//  uint8_t chip_id = 0;
-//  bmi2_get_regs(0x00, &chip_id, 1, &dev);
-//
-//  printf("Chip ID: 0x%X\n", chip_id);
+  /* ENABLE */
   uint8_t sens_list[2] = { BMI2_ACCEL, BMI2_GYRO };
-
   rslt = bmi270_sensor_enable(sens_list, 2, &dev);
+  printf("Enable: %d\n", rslt);
+
+  HAL_Delay(100);
+
+  /* CONFIG */
   struct bmi2_sens_config config[2];
 
   config[0].type = BMI2_ACCEL;
@@ -145,17 +139,18 @@ int main(void)
 
   bmi270_get_sensor_config(config, 2, &dev);
 
-  // Modify accel
   config[0].cfg.acc.odr = BMI2_ACC_ODR_100HZ;
   config[0].cfg.acc.range = BMI2_ACC_RANGE_2G;
   config[0].cfg.acc.bwp = BMI2_ACC_NORMAL_AVG4;
 
-  // Modify gyro
   config[1].cfg.gyr.odr = BMI2_GYR_ODR_100HZ;
   config[1].cfg.gyr.range = BMI2_GYR_RANGE_2000;
   config[1].cfg.gyr.bwp = BMI2_GYR_NORMAL_MODE;
 
-  bmi270_set_sensor_config(config, 2, &dev);
+  rslt = bmi270_set_sensor_config(config, 2, &dev);
+  printf("Config: %d\n", rslt);
+
+  HAL_Delay(100);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -163,15 +158,18 @@ int main(void)
   while (1)
   {
 
-
 	  bmi2_get_sensor_data(&sensor_data, &dev);
-	  int16_t ax = sensor_data.acc.x;
-	  int16_t ay = sensor_data.acc.y;
-	  int16_t az = sensor_data.acc.z;
 
-	  int16_t gx = sensor_data.gyr.x;
-	  int16_t gy = sensor_data.gyr.y;
-	  int16_t gz = sensor_data.gyr.z;
+	     printf("AX:%d AY:%d AZ:%d | GX:%d GY:%d GZ:%d\r\n",
+	            sensor_data.acc.x,
+	            sensor_data.acc.y,
+	            sensor_data.acc.z,
+	            sensor_data.gyr.x,
+	            sensor_data.gyr.y,
+	            sensor_data.gyr.z);
+
+	     HAL_Delay(100);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

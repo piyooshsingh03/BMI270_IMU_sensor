@@ -40,7 +40,7 @@
 
 /*!  @name          Header Files                                  */
 /******************************************************************************/
-#include "BMI2.h"
+#include "bmi2.h"
 
 /***************************************************************************/
 
@@ -1915,7 +1915,7 @@ int8_t bmi2_sec_init(struct bmi2_dev *dev)
             if (rslt == BMI2_OK)
             {
                 /* Validate chip-id */
-                if (chip_id == dev->chip_id)
+            	if ((chip_id == 0x24) || (chip_id == 0x26))
                 {
                     /* Assign resolution to the structure */
                     dev->resolution = 16;

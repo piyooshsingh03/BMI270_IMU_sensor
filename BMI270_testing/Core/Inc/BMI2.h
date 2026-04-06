@@ -58,7 +58,7 @@ extern "C" {
 
 /*!             Header files
  ****************************************************************************/
-#include "BMI2_defs.h"
+#include "bmi2_defs.h"
 
 /***************************************************************************/
 
@@ -87,10 +87,9 @@ extern "C" {
  * @retval 0 -> Success
  * @retval < 0 -> Fail
  */
-int8_t bmi2_sec_init(struct bmi2_dev *dev);
-int8_t bmi2_i2c_write(uint8_t reg_addr, const uint8_t *data, uint32_t len, void *intf_ptr);
-int8_t bmi2_i2c_read(uint8_t reg_addr, uint8_t *data, uint32_t len, void *intf_ptr);
-void bmi2_delay_us(uint32_t period, void *intf_ptr);
+int8_t bmi2_i2c_read(uint8_t, uint8_t*, uint32_t, void*);
+int8_t bmi2_i2c_write(uint8_t, const uint8_t*, uint32_t, void*);
+void bmi2_delay_us(uint32_t, void*);
 /*!
  * \ingroup bmi2ApiInit
  * \page bmi2_api_bmi2_set_spi_en bmi2_set_spi_en
@@ -1219,8 +1218,7 @@ int8_t bmi2_get_fifo_down_sample(uint8_t sens_sel, uint8_t *fifo_down_samp, stru
  *                            counter.
  * @param[in]  dev          : Structure instance of bmi2_dev.
  *
- * @note The byte counter is updated each time a complete frame is
- or
+ * @note The byte counter is updated each time a complete frame is read or
  * written.
  *
  * @return Result of API execution status
